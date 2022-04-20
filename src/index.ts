@@ -1,5 +1,5 @@
-import { Channel } from 'phoenix';
 import { isMatch } from 'matcher';
+import type { Channel } from 'phoenix';
 
 export type Glob = string | string[];
 export type Callback = (event: string, payload: any, ref?: any) => any;
@@ -7,15 +7,6 @@ type Subscriber = {
   glob: Glob;
   cb: Callback;
 };
-
-export const INTERNAL_PHX_EVENTS = new Set([
-  'presence_diff',
-  'phx_close',
-  'phx_error',
-  'phx_join',
-  'phx_reply',
-  'phx_leave',
-]);
 
 export class Wildcard {
   constructor(private _channel: Channel) {
@@ -75,15 +66,12 @@ export class Wildcard {
       throw new Error('This Wildcard instance is destroyed. Create a new one.');
     }
   }
-  private _isEventInternal(event: string) {
-    return INTERNAL_PHX_EVENTS.has(event) || event.startsWith('chan_reply');
-  }
   private _onMessage = (event: string, payload: any, ref: any) => {
     let finalPayload = payload;
     if (this._initialOnMessageCallback) {
       finalPayload = this._initialOnMessageCallback(event, payload, ref);
     }
-    if (!this._isEventInternal(event)) {
+    if (event) {
       this._subscribers.forEach(sub => {
         if (isMatch(event, sub.glob)) {
           sub.cb(event, finalPayload, ref);

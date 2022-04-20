@@ -1,4 +1,4 @@
-import { Wildcard, INTERNAL_PHX_EVENTS, Glob } from './';
+import { Wildcard, Glob } from './';
 import { Channel } from 'phoenix';
 
 const createChannelMock = () => {
@@ -69,16 +69,6 @@ it('should trigger subscribers on incoming events', () => {
   expect(sub2.cb).toHaveBeenCalledTimes(1);
   expect(sub2.cb).toHaveBeenCalledWith(...args);
   expect(sub3.cb).toHaveBeenCalledTimes(0);
-});
-it('should ignore internal phoenix events', () => {
-  const channel = createChannelMock();
-  const wildcard = new Wildcard(channel);
-  const sub = createSub('*');
-  wildcard.on(sub.glob, sub.cb);
-  [...Array.from(INTERNAL_PHX_EVENTS), 'event'].forEach(event => {
-    channel.onMessage(event, null, 1);
-  });
-  expect(sub.cb).toBeCalledTimes(1);
 });
 it('should call initial onMessage callback', () => {
   const channel = createChannelMock();
