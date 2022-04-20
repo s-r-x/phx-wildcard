@@ -2,16 +2,16 @@
   "name": "phx-wildcard",
   "version": "1.0.0",
   "description": "Wildcard support for phoenix channels",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
     "prepublishOnly": "npm run build",
     "build": "tsc",
     "build:watch": "tsc --watch",
     "test": "jest",
     "test:watch": "jest --watch",
-    "lint": "eslint \"./src/**/*.ts*\""
+    "lint": "eslint \"./src/**/*.ts*\"",
+    "lint:strict": "eslint --ext .ts src --max-warnings 0",
+    "semantic-release": "semantic-release"
   },
   "repository": {
     "type": "git",
@@ -32,7 +32,14 @@
   ],
   "author": "srx",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
+    "@semantic-release/changelog": "^6.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^8.0.4",
+    "@semantic-release/release-notes-generator": "^10.0.3",
     "@types/jest": "^26.0.17",
     "@types/phoenix": "^1.5.0",
     "@typescript-eslint/eslint-plugin": "^4.9.1",
@@ -42,10 +49,55 @@
     "eslint-plugin-prettier": "^3.2.0",
     "jest": "^26.6.3",
     "prettier": "^2.2.1",
+    "semantic-release": "^19.0.2",
     "ts-jest": "^26.4.4",
     "typescript": "^4.1.2"
   },
   "dependencies": {
     "matcher": "^3.0.0"
+  },
+  "release": {
+    "branches": ["master"],
+    "plugins": [
+      [
+        "@semantic-release/commit-analyzer",
+        {
+          "preset": "angular",
+          "releaseRules": [
+            {
+              "type": "docs",
+              "release": "patch"
+            }
+          ],
+          "parserOpts": {
+            "noteKeywords": ["BREAKING CHANGE", "BREAKING CHANGES"]
+          }
+        }
+      ],
+      [
+        "@semantic-release/release-notes-generator",
+        {
+          "preset": "angular",
+          "parserOpts": {
+            "noteKeywords": ["BREAKING CHANGE", "BREAKING CHANGES"]
+          }
+        }
+      ],
+      [
+        "@semantic-release/changelog",
+        {
+          "changelogFile": "CHANGELOG.md"
+        }
+      ],
+      "@semantic-release/npm",
+      "@semantic-release/github",
+      [
+        "@semantic-release/git",
+        {
+          "assets": ["CHANGELOG.md", "package.json"],
+          "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+        }
+      ]
+    ]
   }
 }
